@@ -163,7 +163,7 @@ const commands = [
 
 ].map(cmd => cmd.toJSON());
 
-// ================= REGISTER COMMANDS =================
+// ================= REGISTER =================
 
 const rest = new REST({
   version: "10"
@@ -203,67 +203,7 @@ client.once("ready", () => {
 
 });
 
-// ================= WELCOME SYSTEM =================
-
-client.on("guildMemberAdd", async (member) => {
-
-  const channel =
-    member.guild.channels.cache.get(
-      WELCOME_CHANNEL_ID
-    );
-
-  if (!channel) return;
-
-  await member.roles.add(
-    UNVERIFIED_ROLE_ID
-  );
-
-  const embed = new EmbedBuilder()
-    .setColor("#00bfff")
-    .setTitle("🌊 Welcome To Algeria Wave")
-    .setDescription(`Welcome ${member}`)
-    .addFields(
-      {
-        name: "Username",
-        value: member.user.tag,
-        inline: true
-      },
-      {
-        name: "Member Count",
-        value: `${member.guild.memberCount}`,
-        inline: true
-      }
-    )
-    .setThumbnail(
-      member.user.displayAvatarURL({
-        dynamic: true
-      })
-    )
-    .setFooter({
-      text: "Algeria Wave"
-    })
-    .setTimestamp();
-
-  channel.send({
-    content: `${member}`,
-    embeds: [embed]
-  });
-
-});
-
-// ================= INTERACTION CREATE =================
-
-client.on("interactionCreate", async (i) => {
-
-  if (!i.isChatInputCommand()) return;
-
-  const { commandName } = i;// ================= READY =================
-
-client.once("ready", () => {
-  console.log(`🤖 ${client.user.tag} READY`);
-});
-
-// ================= WELCOME SYSTEM =================
+// ================= WELCOME =================
 
 client.on("guildMemberAdd", async (member) => {
 
@@ -276,34 +216,27 @@ client.on("guildMemberAdd", async (member) => {
 
   try {
 
-    const role =
-      member.guild.roles.cache.get(
-        UNVERIFIED_ROLE_ID
-      );
-
-    if (role) {
-      await member.roles.add(role);
-    }
+    await member.roles.add(
+      UNVERIFIED_ROLE_ID
+    );
 
   } catch (err) {
+
     console.log(err);
+
   }
 
   const embed = new EmbedBuilder()
-
     .setColor("#090914")
-
     .setAuthor({
       name: "Welcome to Algeria Wave"
     })
-
     .setDescription(`
 Hello ${member}
 
 Welcome To Algeria Wave 🌊
 Enjoy Your Stay.
     `)
-
     .addFields(
       {
         name: "Username",
@@ -316,14 +249,12 @@ Enjoy Your Stay.
         inline: true
       }
     )
-
     .setThumbnail(
       member.user.displayAvatarURL({
         dynamic: true,
         size: 1024
       })
     )
-
     .setTimestamp();
 
   welcomeChannel.send({
@@ -381,6 +312,29 @@ ${url}`
   if (!i.isChatInputCommand()) return;
 
   const { commandName } = i;
+    // ================= AFK =================
+
+  if (commandName === "afk") {
+
+    afkUsers.set(i.user.id, true);
+
+    return i.reply({
+      content: "💤 You Are Now AFK"
+    });
+
+  }
+
+  // ================= UNAFK =================
+
+  if (commandName === "unafk") {
+
+    afkUsers.delete(i.user.id);
+
+    return i.reply({
+      content: "✅ You Are No Longer AFK"
+    });
+
+  }
 
   // ================= HELP =================
 
@@ -460,3 +414,81 @@ ${url}`
     });
 
   }
+
+  // ================= VB =================
+
+  if (commandName === "vb") {
+
+    const user =
+      i.options.getUser("user");
+
+    const member =
+      i.guild.members.cache.get(user.id);
+
+    await member.roles.remove(
+      UNVERIFIED_ROLE_ID
+    );
+
+    await member.roles.add([
+      VERIFIED_ROLE_ID,
+      MEMBER_ROLE_ID,
+      BOY_ROLE_ID
+    ]);
+
+    return i.reply({
+      content: `✅ ${user.tag} Verified As Boy`
+    });
+
+  }
+
+  // ================= VG =================
+
+  if (commandName === "vg") {
+
+    const user =
+      i.options.getUser("user");
+
+    const member =
+      i.guild.members.cache.get(user.id);
+
+    await member.roles.remove(
+      UNVERIFIED_ROLE_ID
+    );
+
+    await member.roles.add([
+      VERIFIED_ROLE_ID,
+      MEMBER_ROLE_ID,
+      GIRL_ROLE_ID
+    ]);
+
+    return i.reply({
+      content: `✅ ${user.tag} Verified As Girl`
+    });
+
+  }
+
+});
+
+// ================= AFK MENTION =================
+
+client.on("messageCreate", async (message) => {
+
+  if (message.author.bot) return;
+
+  message.mentions.users.forEach(user => {
+
+    if (afkUsers.has(user.id)) {
+
+      message.reply(
+        `💤 ${user.username} Is AFK`
+      );
+
+    }
+
+  });
+
+});
+
+// ================= LOGIN =================
+
+client.login(TOKEN);
