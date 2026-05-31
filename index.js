@@ -557,12 +557,16 @@ ${url}
       BOY_ROLE_ID
     ]);
 
-    return i.reply({
-      content: `✅ ${user.tag} Verified As Boy`
-    });
+const embed = new EmbedBuilder()
+  .setColor("#57F287")
+  .setTitle("✔ Verification Process")
+  .setDescription(
+    `👥 **${user.username}** has been successfully verified!`
+  );
 
-  }
-
+return i.reply({
+  embeds: [embed]
+});
   // ================= VG =================
 
   if (commandName === "vg") {
@@ -583,12 +587,15 @@ ${url}
       GIRL_ROLE_ID
     ]);
 
-    return i.reply({
-      content: `✅ ${user.tag} Verified As Girl`
-    });
+const embed = new EmbedBuilder()
+  .setColor("#57F287")
+  .setTitle("✔ Verification Process")
+  .setDescription(
+    `👥 **${user.username}** has been successfully verified!`
+  );
 
-  }
-
+return i.reply({
+  embeds: [embed]
 });
 
 // ================= AFK MENTION =================
