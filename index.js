@@ -600,6 +600,8 @@ return i.reply({
 
 // ================= AFK MENTION =================
 
+});
+
 client.on("messageCreate", async (message) => {
 
   if (message.author.bot) return;
@@ -620,5 +622,4 @@ client.on("messageCreate", async (message) => {
 
 // ================= LOGIN =================
 
-console.log("TOKEN:", TOKEN);
 client.login(TOKEN);
