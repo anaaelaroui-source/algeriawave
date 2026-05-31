@@ -43,7 +43,7 @@ const client = new Client({
   ]
 });
 
-// ================= AFK DATA =================
+// ================= AFK =================
 
 const afkUsers = new Map();
 
@@ -264,15 +264,13 @@ Enjoy Your Stay.
 
 });
 
-// ================= INTERACTIONS =================
+// ================= INTERACTION CREATE =================
 
 client.on("interactionCreate", async (i) => {
 
   if (i.isButton()) {
 
-    if (i.customId === "sendclip") {
-
-      const clipsChannel =
+    if (i.customId === "sendclip") {const clipsChannel =
         i.guild.channels.cache.get(
           CLIPS_CHANNEL_ID
         );
@@ -312,7 +310,8 @@ ${url}`
   if (!i.isChatInputCommand()) return;
 
   const { commandName } = i;
-    // ================= AFK =================
+
+  // ================= AFK =================
 
   if (commandName === "afk") {
 
