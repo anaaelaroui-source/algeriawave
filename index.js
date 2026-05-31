@@ -58,45 +58,51 @@ const commands = [
   new SlashCommandBuilder()
     .setName("avatar")
     .setDescription("Show avatar")
-    .addUserOption(o =>
-      o.setName("user")
-        .setDescription("Target")
+    .addUserOption(option =>
+      option
+        .setName("user")
+        .setDescription("Target user")
         .setRequired(false)
     ),
 
   new SlashCommandBuilder()
     .setName("move")
     .setDescription("Move member")
-    .addUserOption(o =>
-      o.setName("user")
-        .setDescription("Target")
+    .addUserOption(option =>
+      option
+        .setName("user")
+        .setDescription("Target user")
         .setRequired(true)
     ),
 
   new SlashCommandBuilder()
     .setName("setnick")
-    .setDescription("Set nickname")
-    .addUserOption(o =>
-      o.setName("user")
-        .setDescription("Target")
+    .setDescription("Change nickname")
+    .addUserOption(option =>
+      option
+        .setName("user")
+        .setDescription("Target user")
         .setRequired(true)
     )
-    .addStringOption(o =>
-      o.setName("nickname")
-        .setDescription("Nickname")
+    .addStringOption(option =>
+      option
+        .setName("nickname")
+        .setDescription("New nickname")
         .setRequired(true)
     ),
 
   new SlashCommandBuilder()
     .setName("roleadd")
     .setDescription("Add role")
-    .addUserOption(o =>
-      o.setName("user")
-        .setDescription("Target")
+    .addUserOption(option =>
+      option
+        .setName("user")
+        .setDescription("Target user")
         .setRequired(true)
     )
-    .addRoleOption(o =>
-      o.setName("role")
+    .addRoleOption(option =>
+      option
+        .setName("role")
         .setDescription("Role")
         .setRequired(true)
     ),
@@ -104,41 +110,46 @@ const commands = [
   new SlashCommandBuilder()
     .setName("roleremove")
     .setDescription("Remove role")
-    .addUserOption(o =>
-      o.setName("user")
-        .setDescription("Target")
+    .addUserOption(option =>
+      option
+        .setName("user")
+        .setDescription("Target user")
         .setRequired(true)
     )
-    .addRoleOption(o =>
-      o.setName("role")
+    .addRoleOption(option =>
+      option
+        .setName("role")
         .setDescription("Role")
         .setRequired(true)
     ),
 
   new SlashCommandBuilder()
     .setName("link")
-    .setDescription("Send clip")
-    .addStringOption(o =>
-      o.setName("url")
-        .setDescription("TikTok URL")
+    .setDescription("Send video request")
+    .addStringOption(option =>
+      option
+        .setName("url")
+        .setDescription("Video URL")
         .setRequired(true)
     ),
 
   new SlashCommandBuilder()
     .setName("vb")
     .setDescription("Verify Boy")
-    .addUserOption(o =>
-      o.setName("user")
-        .setDescription("Target")
+    .addUserOption(option =>
+      option
+        .setName("user")
+        .setDescription("Target user")
         .setRequired(true)
     ),
 
   new SlashCommandBuilder()
     .setName("vg")
     .setDescription("Verify Girl")
-    .addUserOption(o =>
-      o.setName("user")
-        .setDescription("Target")
+    .addUserOption(option =>
+      option
+        .setName("user")
+        .setDescription("Target user")
         .setRequired(true)
     ),
 
@@ -150,9 +161,9 @@ const commands = [
     .setName("unafk")
     .setDescription("Remove AFK")
 
-].map(c => c.toJSON());
+].map(cmd => cmd.toJSON());
 
-// ================= REGISTER =================
+// ================= REGISTER COMMANDS =================
 
 const rest = new REST({
   version: "10"
@@ -169,13 +180,17 @@ const rest = new REST({
         CLIENT_ID,
         GUILD_ID
       ),
-      { body: commands }
+      {
+        body: commands
+      }
     );
 
     console.log("✅ Commands Registered");
 
   } catch (err) {
+
     console.log(err);
+
   }
 
 })();
@@ -183,10 +198,72 @@ const rest = new REST({
 // ================= READY =================
 
 client.once("ready", () => {
+
+  console.log(`🤖 ${client.user.tag} Online`);
+
+});
+
+// ================= WELCOME SYSTEM =================
+
+client.on("guildMemberAdd", async (member) => {
+
+  const channel =
+    member.guild.channels.cache.get(
+      WELCOME_CHANNEL_ID
+    );
+
+  if (!channel) return;
+
+  await member.roles.add(
+    UNVERIFIED_ROLE_ID
+  );
+
+  const embed = new EmbedBuilder()
+    .setColor("#00bfff")
+    .setTitle("🌊 Welcome To Algeria Wave")
+    .setDescription(`Welcome ${member}`)
+    .addFields(
+      {
+        name: "Username",
+        value: member.user.tag,
+        inline: true
+      },
+      {
+        name: "Member Count",
+        value: `${member.guild.memberCount}`,
+        inline: true
+      }
+    )
+    .setThumbnail(
+      member.user.displayAvatarURL({
+        dynamic: true
+      })
+    )
+    .setFooter({
+      text: "Algeria Wave"
+    })
+    .setTimestamp();
+
+  channel.send({
+    content: `${member}`,
+    embeds: [embed]
+  });
+
+});
+
+// ================= INTERACTION CREATE =================
+
+client.on("interactionCreate", async (i) => {
+
+  if (!i.isChatInputCommand()) return;
+
+  const { commandName } = i;// ================= READY =================
+
+client.once("ready", () => {
   console.log(`🤖 ${client.user.tag} READY`);
 });
 
-// ================= WELCOME =================
+// ================= WELCOME SYSTEM =================
 
 client.on("guildMemberAdd", async (member) => {
 
@@ -196,26 +273,6 @@ client.on("guildMemberAdd", async (member) => {
     );
 
   if (!welcomeChannel) return;
-
-  let inviteCode = "Unknown";
-
-  try {
-
-    const invites =
-      await member.guild.invites.fetch();
-
-    const invite =
-      invites.sort(
-        (a, b) => b.uses - a.uses
-      ).first();
-
-    if (invite) {
-      inviteCode = invite.code;
-    }
-
-  } catch (err) {
-    console.log(err);
-  }
 
   try {
 
@@ -237,46 +294,27 @@ client.on("guildMemberAdd", async (member) => {
     .setColor("#090914")
 
     .setAuthor({
-      name: "Welcome to the Server!"
+      name: "Welcome to Algeria Wave"
     })
 
     .setDescription(`
-Hello ${member}, welcome to [AW] Algeria Wave! enjoy your stay.
+Hello ${member}
+
+Welcome To Algeria Wave 🌊
+Enjoy Your Stay.
     `)
 
     .addFields(
-
       {
         name: "Username",
-        value: `${member.user.username}`,
+        value: member.user.username,
         inline: true
       },
-
       {
-        name: "Invited By",
-        value: "@Unknown",
-        inline: true
-      },
-
-      {
-        name: "Invite Used",
-        value: inviteCode,
-        inline: true
-      },
-
-      {
-        name: "You're Member",
+        name: "Member Count",
         value: `${member.guild.memberCount}`,
         inline: true
-      },
-
-      {
-        name: "Server Rules",
-        value:
-"[Rules](https://discord.com/channels/1506394750410821805/1506405158546837626)",
-        inline: true
       }
-
     )
 
     .setThumbnail(
@@ -285,10 +323,6 @@ Hello ${member}, welcome to [AW] Algeria Wave! enjoy your stay.
         size: 1024
       })
     )
-
-    .setFooter({
-      text: `Today at ${new Date().toLocaleTimeString()}`
-    })
 
     .setTimestamp();
 
@@ -319,7 +353,7 @@ client.on("interactionCreate", async (i) => {
         content:
 `@everyone 🔥
 
-📹 New Video Posted By ${i.user}
+📹 New Video Posted
 
 ${url}`
       });
@@ -348,40 +382,13 @@ ${url}`
 
   const { commandName } = i;
 
-  // ================= AFK =================
-
-  if (commandName === "afk") {
-
-    afkUsers.set(i.user.id, true);
-
-    return i.reply({
-      content: "💤 You Are Now AFK"
-    });
-
-  }
-
-  // ================= UNAFK =================
-
-  if (commandName === "unafk") {
-
-    afkUsers.delete(i.user.id);
-
-    return i.reply({
-      content: "✅ You Are No Longer AFK"
-    });
-
-  }
-
   // ================= HELP =================
 
   if (commandName === "help") {
 
     const embed = new EmbedBuilder()
-
       .setColor("#00ffee")
-
       .setTitle("📜 Algeria Wave Commands")
-
       .setDescription(`
 /help
 /avatar
@@ -389,11 +396,11 @@ ${url}`
 /setnick
 /roleadd
 /roleremove
+/afk
+/unafk
 /link
 /vb
 /vg
-/afk
-/unafk
       `);
 
     return i.reply({
@@ -410,11 +417,8 @@ ${url}`
       i.options.getUser("user") || i.user;
 
     const embed = new EmbedBuilder()
-
       .setColor("#00ffee")
-
       .setTitle(`${user.tag} Avatar`)
-
       .setImage(
         user.displayAvatarURL({
           dynamic: true,
@@ -456,258 +460,3 @@ ${url}`
     });
 
   }
-
-  // ================= SETNICK =================
-
-  if (commandName === "setnick") {
-
-    const user =
-      i.options.getUser("user");
-
-    const nickname =
-      i.options.getString("nickname");
-
-    const member =
-      i.guild.members.cache.get(user.id);
-
-    await member.setNickname(nickname);
-
-    return i.reply({
-      content: "✅ Nickname Updated"
-    });
-
-  }
-
-  // ================= ROLE ADD =================
-
-  if (commandName === "roleadd") {
-
-    if (
-      !i.member.permissions.has(
-        PermissionsBitField.Flags.Administrator
-      )
-    ) {
-
-      return i.reply({
-        content: "❌ Admin Only",
-        ephemeral: true
-      });
-
-    }
-
-    const user =
-      i.options.getUser("user");
-
-    const role =
-      i.options.getRole("role");
-
-    const member =
-      i.guild.members.cache.get(user.id);
-
-    await member.roles.add(role);
-
-    return i.reply({
-      content: "✅ Role Added"
-    });
-
-  }
-
-  // ================= ROLE REMOVE =================
-
-  if (commandName === "roleremove") {
-
-    if (
-      !i.member.permissions.has(
-        PermissionsBitField.Flags.Administrator
-      )
-    ) {
-
-      return i.reply({
-        content: "❌ Admin Only",
-        ephemeral: true
-      });
-
-    }
-
-    const user =
-      i.options.getUser("user");
-
-    const role =
-      i.options.getRole("role");
-
-    const member =
-      i.guild.members.cache.get(user.id);
-
-    await member.roles.remove(role);
-
-    return i.reply({
-      content: "✅ Role Removed"
-    });
-
-  }
-
-  // ================= LINK =================
-
-  if (commandName === "link") {
-
-    const url =
-      i.options.getString("url");
-
-    await i.reply({
-      content: "✅ Request Sent",
-      ephemeral: true
-    });
-
-    const embed = new EmbedBuilder()
-
-      .setColor("#00bfff")
-
-      .setTitle("🎬 VIDEO REQUEST")
-
-      .setDescription(`
-👤 Creator:
-${i.user}
-
-🔗 URL:
-${url}
-      `)
-
-      .setThumbnail(
-        i.user.displayAvatarURL({
-          dynamic: true
-        })
-      )
-
-      .setFooter({
-        text: url
-      })
-
-      .setTimestamp();
-
-    const row =
-      new ActionRowBuilder()
-        .addComponents(
-
-          new ButtonBuilder()
-            .setCustomId("sendclip")
-            .setLabel("SEND")
-            .setStyle(ButtonStyle.Success),
-
-          new ButtonBuilder()
-            .setCustomId("cancel_clip")
-            .setLabel("CANCEL")
-            .setStyle(ButtonStyle.Danger)
-
-        );
-
-    const requestChannel =
-      i.guild.channels.cache.get(
-        REQUEST_CHANNEL_ID
-      );
-
-    await requestChannel.send({
-      embeds: [embed],
-      components: [row]
-    });
-
-  }
-  // ================= VB =================
-  
-  if (commandName === "vg") {
-
-  if (!i.member.roles.cache.has(VERIFY_STAFF_ROLE_ID)) {
-    return i.reply({
-      content: "❌ Verification Staff Only",
-      ephemeral: true
-    });
-  }
-
-  const user = i.options.getUser("user");
-  const member = i.guild.members.cache.get(user.id);
-
-  if (member.roles.cache.has(UNVERIFIED_ROLE_ID)) {
-    await member.roles.remove(UNVERIFIED_ROLE_ID);
-  }
-
-  await member.roles.add([
-    VERIFIED_ROLE_ID,
-    MEMBER_ROLE_ID,
-    GIRL_ROLE_ID
-  ]);
-
-  const embed = new EmbedBuilder()
-    .setColor("#57F287")
-    .setTitle("✔ Verification Process")
-    .setDescription(
-      `👥 ${user} has been successfully **verified!**`
-    )
-    .setTimestamp();
-
-  return i.reply({
-    embeds: [embed]
-  });
-}
-  
-  // ================= VB =================
-
-  if (commandName === "vb") {
-
-  if (!i.member.roles.cache.has(VERIFY_STAFF_ROLE_ID)) {
-    return i.reply({
-      content: "❌ Verification Staff Only",
-      ephemeral: true
-    });
-  }
-
-  const user = i.options.getUser("user");
-  const member = i.guild.members.cache.get(user.id);
-
-  if (member.roles.cache.has(UNVERIFIED_ROLE_ID)) {
-    await member.roles.remove(UNVERIFIED_ROLE_ID);
-  }
-
-  await member.roles.add([
-    VERIFIED_ROLE_ID,
-    MEMBER_ROLE_ID,
-    BOY_ROLE_ID
-  ]);
-
-  const embed = new EmbedBuilder()
-    .setColor("#57F287")
-    .setTitle("✔ Verification Process")
-    .setDescription(
-      `👥 ${user} has been successfully **verified!**`
-    )
-    .setTimestamp();
-
-  return i.reply({
-    embeds: [embed]
-  });
-}
-
-// ================= MESSAGE EVENTS =================
-
-client.on("messageCreate", async (message) => {
-
-  if (message.author.bot) return;
-
-  // CHECK AFK MENTIONS
-
-  message.mentions.users.forEach(user => {
-
-    if (afkUsers.has(user.id)) {
-
-      message.reply(
-        `💤 ${user.username} Has Been AFK`
-      );
-
-    }
-
-  });
-
-});
-
-
-// ================= LOGIN =================
-
-client.login(TOKEN);
