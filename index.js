@@ -611,98 +611,79 @@ ${url}
     });
 
   }
+  // ================= VB =================
+  
+  if (commandName === "vg") {
 
+  if (!i.member.roles.cache.has(VERIFY_STAFF_ROLE_ID)) {
+    return i.reply({
+      content: "❌ Verification Staff Only",
+      ephemeral: true
+    });
+  }
+
+  const user = i.options.getUser("user");
+  const member = i.guild.members.cache.get(user.id);
+
+  if (member.roles.cache.has(UNVERIFIED_ROLE_ID)) {
+    await member.roles.remove(UNVERIFIED_ROLE_ID);
+  }
+
+  await member.roles.add([
+    VERIFIED_ROLE_ID,
+    MEMBER_ROLE_ID,
+    GIRL_ROLE_ID
+  ]);
+
+  const embed = new EmbedBuilder()
+    .setColor("#57F287")
+    .setTitle("✔ Verification Process")
+    .setDescription(
+      `👥 ${user} has been successfully **verified!**`
+    )
+    .setTimestamp();
+
+  return i.reply({
+    embeds: [embed]
+  });
+}
+  
   // ================= VB =================
 
   if (commandName === "vb") {
 
-    if (
-      !i.member.roles.cache.has(
-        VERIFY_STAFF_ROLE_ID
-      )
-    ) {
-
-      return i.reply({
-        content: "❌ Verification Staff Only",
-        ephemeral: true
-      });
-
-    }
-
-    const user =
-      i.options.getUser("user");
-
-    const member =
-      i.guild.members.cache.get(user.id);
-
-    if (
-      member.roles.cache.has(
-        UNVERIFIED_ROLE_ID
-      )
-    ) {
-
-      await member.roles.remove(
-        UNVERIFIED_ROLE_ID
-      );
-
-    }
-
-    await member.roles.add(VERIFIED_ROLE_ID);
-    await member.roles.add(MEMBER_ROLE_ID);
-    await member.roles.add(BOY_ROLE_ID);
-
+  if (!i.member.roles.cache.has(VERIFY_STAFF_ROLE_ID)) {
     return i.reply({
-      content: `✅ ${user.tag} Verified As Boy`
+      content: "❌ Verification Staff Only",
+      ephemeral: true
     });
-
   }
 
-  // ================= VG =================
+  const user = i.options.getUser("user");
+  const member = i.guild.members.cache.get(user.id);
 
-  if (commandName === "vg") {
-
-    if (
-      !i.member.roles.cache.has(
-        VERIFY_STAFF_ROLE_ID
-      )
-    ) {
-
-      return i.reply({
-        content: "❌ Verification Staff Only",
-        ephemeral: true
-      });
-
-    }
-
-    const user =
-      i.options.getUser("user");
-
-    const member =
-      i.guild.members.cache.get(user.id);
-
-    if (
-      member.roles.cache.has(
-        UNVERIFIED_ROLE_ID
-      )
-    ) {
-
-      await member.roles.remove(
-        UNVERIFIED_ROLE_ID
-      );
-
-    }
-
-    await member.roles.add(VERIFIED_ROLE_ID);
-    await member.roles.add(MEMBER_ROLE_ID);
-    await member.roles.add(GIRL_ROLE_ID);
-
-    return i.reply({
-      content: `✅ ${user.tag} Verified As Girl`
-    });
-
+  if (member.roles.cache.has(UNVERIFIED_ROLE_ID)) {
+    await member.roles.remove(UNVERIFIED_ROLE_ID);
   }
 
-});
+  await member.roles.add([
+    VERIFIED_ROLE_ID,
+    MEMBER_ROLE_ID,
+    BOY_ROLE_ID
+  ]);
+
+  const embed = new EmbedBuilder()
+    .setColor("#57F287")
+    .setTitle("✔ Verification Process")
+    .setDescription(
+      `👥 ${user} has been successfully **verified!**`
+    )
+    .setTimestamp();
+
+  return i.reply({
+    embeds: [embed]
+  });
+}
 
 // ================= MESSAGE EVENTS =================
 
@@ -725,6 +706,7 @@ client.on("messageCreate", async (message) => {
   });
 
 });
+
 
 // ================= LOGIN =================
 
