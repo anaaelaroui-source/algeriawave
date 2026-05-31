@@ -613,4 +613,5 @@ client.on("messageCreate", async (message) => {
 
 // ================= LOGIN =================
 
+console.log("TOKEN:", TOKEN);
 client.login(TOKEN);
