@@ -1,276 +1,153 @@
-const {
-  Client,
-  GatewayIntentBits,
-  PermissionsBitField,
-  SlashCommandBuilder,
-  REST,
-  Routes,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle
-} = require("discord.js");
+// ================= SETNICK =================
 
-// ================= CONFIG =================
+if (commandName === "setnick") {
 
-const TOKEN = process.env.TOKEN;
+  const user = i.options.getUser("user");
+  const nickname = i.options.getString("nickname");
 
-const CLIENT_ID = "1507322298284244993";
-const GUILD_ID = "1506394750410821805";
+  const member =
+    i.guild.members.cache.get(user.id);
 
-// CHANNELS
-const REQUEST_CHANNEL_ID = "1507330365486796842";
-const WELCOME_CHANNEL_ID = "1506405747133517996";
-const CLIPS_CHANNEL_ID = "1506403896308928583";
+  await member.setNickname(nickname);
 
-// ROLES
-const VERIFIED_ROLE_ID = "1506608492062969866";
-const MEMBER_ROLE_ID = "1506397247670190201";
-const BOY_ROLE_ID = "1506608301851283608";
-const GIRL_ROLE_ID = "1506608451453718611";
-const UNVERIFIED_ROLE_ID = "1506608698355613827";
-const VERIFY_STAFF_ROLE_ID = "1506614299957792768";
-
-// ================= CLIENT =================
-
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildVoiceStates
-  ]
-});
-
-// ================= AFK =================
-
-const afkUsers = new Map();
-
-// ================= COMMANDS =================
-
-const commands = [
-
-  new SlashCommandBuilder()
-    .setName("help")
-    .setDescription("Show commands"),
-
-  new SlashCommandBuilder()
-    .setName("avatar")
-    .setDescription("Show avatar")
-    .addUserOption(option =>
-      option
-        .setName("user")
-        .setDescription("Target user")
-        .setRequired(false)
-    ),
-
-  new SlashCommandBuilder()
-    .setName("move")
-    .setDescription("Move member")
-    .addUserOption(option =>
-      option
-        .setName("user")
-        .setDescription("Target user")
-        .setRequired(true)
-    ),
-
-  new SlashCommandBuilder()
-    .setName("setnick")
-    .setDescription("Change nickname")
-    .addUserOption(option =>
-      option
-        .setName("user")
-        .setDescription("Target user")
-        .setRequired(true)
-    )
-    .addStringOption(option =>
-      option
-        .setName("nickname")
-        .setDescription("New nickname")
-        .setRequired(true)
-    ),
-
-  new SlashCommandBuilder()
-    .setName("roleadd")
-    .setDescription("Add role")
-    .addUserOption(option =>
-      option
-        .setName("user")
-        .setDescription("Target user")
-        .setRequired(true)
-    )
-    .addRoleOption(option =>
-      option
-        .setName("role")
-        .setDescription("Role")
-        .setRequired(true)
-    ),
-
-  new SlashCommandBuilder()
-    .setName("roleremove")
-    .setDescription("Remove role")
-    .addUserOption(option =>
-      option
-        .setName("user")
-        .setDescription("Target user")
-        .setRequired(true)
-    )
-    .addRoleOption(option =>
-      option
-        .setName("role")
-        .setDescription("Role")
-        .setRequired(true)
-    ),
-
-  new SlashCommandBuilder()
-    .setName("link")
-    .setDescription("Send video request")
-    .addStringOption(option =>
-      option
-        .setName("url")
-        .setDescription("Video URL")
-        .setRequired(true)
-    ),
-
-  new SlashCommandBuilder()
-    .setName("vb")
-    .setDescription("Verify Boy")
-    .addUserOption(option =>
-      option
-        .setName("user")
-        .setDescription("Target user")
-        .setRequired(true)
-    ),
-
-  new SlashCommandBuilder()
-    .setName("vg")
-    .setDescription("Verify Girl")
-    .addUserOption(option =>
-      option
-        .setName("user")
-        .setDescription("Target user")
-        .setRequired(true)
-    ),
-
-  new SlashCommandBuilder()
-    .setName("afk")
-    .setDescription("Set AFK"),
-
-  new SlashCommandBuilder()
-    .setName("unafk")
-    .setDescription("Remove AFK")
-
-].map(cmd => cmd.toJSON());
-
-// ================= REGISTER =================
-
-const rest = new REST({
-  version: "10"
-}).setToken(TOKEN);
-
-(async () => {
-
-  try {
-
-    console.log("Registering Commands...");
-
-    await rest.put(
-      Routes.applicationGuildCommands(
-        CLIENT_ID,
-        GUILD_ID
-      ),
-      {
-        body: commands
-      }
-    );
-
-    console.log("✅ Commands Registered");
-
-  } catch (err) {
-
-    console.log(err);
-
-  }
-
-})();
-
-// ================= READY =================
-
-client.once("ready", () => {
-
-  console.log(`🤖 ${client.user.tag} Online`);
-
-});
-
-// ================= WELCOME =================
-
-client.on("guildMemberAdd", async (member) => {
-
-  const welcomeChannel =
-    member.guild.channels.cache.get(
-      WELCOME_CHANNEL_ID
-    );
-
-  if (!welcomeChannel) return;
-
-  try {
-
-    await member.roles.add(
-      UNVERIFIED_ROLE_ID
-    );
-
-  } catch (err) {
-
-    console.log(err);
-
-  }
-
-  const embed = new EmbedBuilder()
-    .setColor("#090914")
-    .setAuthor({
-      name: "Welcome to Algeria Wave"
-    })
-    .setDescription(`
-Hello ${member}
-
-Welcome To Algeria Wave 🌊
-Enjoy Your Stay.
-    `)
-    .addFields(
-      {
-        name: "Username",
-        value: member.user.username,
-        inline: true
-      },
-      {
-        name: "Member Count",
-        value: `${member.guild.memberCount}`,
-        inline: true
-      }
-    )
-    .setThumbnail(
-      member.user.displayAvatarURL({
-        dynamic: true,
-        size: 1024
-      })
-    )
-    .setTimestamp();
-
-  welcomeChannel.send({
-    content: `${member}`,
-    embeds: [embed]
+  return i.reply({
+    content: "✅ Nickname Updated"
   });
 
-});
+}
 
+// ================= ROLE ADD =================
+
+if (commandName === "roleadd") {
+
+  if (
+    !i.member.permissions.has(
+      PermissionsBitField.Flags.Administrator
+    )
+  ) {
+    return i.reply({
+      content: "❌ Admin Only",
+      ephemeral: true
+    });
+  }
+
+  const user =
+    i.options.getUser("user");
+
+  const role =
+    i.options.getRole("role");
+
+  const member =
+    i.guild.members.cache.get(user.id);
+
+  await member.roles.add(role);
+
+  return i.reply({
+    content: "✅ Role Added"
+  });
+
+}
+
+// ================= ROLE REMOVE =================
+
+if (commandName === "roleremove") {
+
+  if (
+    !i.member.permissions.has(
+      PermissionsBitField.Flags.Administrator
+    )
+  ) {
+    return i.reply({
+      content: "❌ Admin Only",
+      ephemeral: true
+    });
+  }
+
+  const user =
+    i.options.getUser("user");
+
+  const role =
+    i.options.getRole("role");
+
+  const member =
+    i.guild.members.cache.get(user.id);
+
+  await member.roles.remove(role);
+
+  return i.reply({
+    content: "✅ Role Removed"
+  });
+
+}
+
+// ================= LINK =================
+
+if (commandName === "link") {
+
+  const url =
+    i.options.getString("url");
+
+  await i.reply({
+    content: "✅ Request Sent",
+    ephemeral: true
+  });
+
+  const embed = new EmbedBuilder()
+    .setColor("#00bfff")
+    .setTitle("🎬 VIDEO REQUEST")
+    .setDescription(`
+👤 Creator:
+${i.user}
+
+🔗 URL:
+${url}
+    `)
+    .setThumbnail(
+      i.user.displayAvatarURL({
+        dynamic: true
+      })
+    )
+    .setFooter({
+      text: url
+    })
+    .setTimestamp();
+
+  const row =
+    new ActionRowBuilder()
+      .addComponents(
+
+        new ButtonBuilder()
+          .setCustomId("sendclip")
+          .setLabel("SEND")
+          .setStyle(ButtonStyle.Success),
+
+        new ButtonBuilder()
+          .setCustomId("cancel_clip")
+          .setLabel("CANCEL")
+          .setStyle(ButtonStyle.Danger)
+
+      );
+
+  const requestChannel =
+    i.guild.channels.cache.get(
+      REQUEST_CHANNEL_ID
+    );
+
+  await requestChannel.send({
+    embeds: [embed],
+    components: [row]
+  });
+
+}
 // ================= INTERACTION CREATE =================
 
 client.on("interactionCreate", async (i) => {
 
   if (i.isButton()) {
 
-    if (i.customId === "sendclip") {const clipsChannel =
+    if (i.customId === "sendclip") {
+
+      const clipsChannel =
         i.guild.channels.cache.get(
           CLIPS_CHANNEL_ID
         );
@@ -410,6 +287,128 @@ ${url}`
 
     return i.reply({
       content: `✅ Moved ${user.tag}`
+    });
+
+  }
+
+  // ================= SETNICK =================
+
+  if (commandName === "setnick") {
+
+    const user =
+      i.options.getUser("user");
+
+    const nickname =
+      i.options.getString("nickname");
+
+    const member =
+      i.guild.members.cache.get(user.id);
+
+    await member.setNickname(nickname);
+
+    return i.reply({
+      content: "✅ Nickname Updated"
+    });
+
+  }
+
+  // ================= ROLE ADD =================
+
+  if (commandName === "roleadd") {
+
+    const user =
+      i.options.getUser("user");
+
+    const role =
+      i.options.getRole("role");
+
+    const member =
+      i.guild.members.cache.get(user.id);
+
+    await member.roles.add(role);
+
+    return i.reply({
+      content: "✅ Role Added"
+    });
+
+  }
+
+  // ================= ROLE REMOVE =================
+
+  if (commandName === "roleremove") {
+
+    const user =
+      i.options.getUser("user");
+
+    const role =
+      i.options.getRole("role");
+
+    const member =
+      i.guild.members.cache.get(user.id);
+
+    await member.roles.remove(role);
+
+    return i.reply({
+      content: "✅ Role Removed"
+    });
+
+  }
+
+  // ================= LINK =================
+
+  if (commandName === "link") {
+
+    const url =
+      i.options.getString("url");
+
+    await i.reply({
+      content: "✅ Request Sent",
+      ephemeral: true
+    });
+
+    const embed = new EmbedBuilder()
+      .setColor("#00bfff")
+      .setTitle("🎬 VIDEO REQUEST")
+      .setDescription(`
+👤 Creator:
+${i.user}
+
+🔗 URL:
+${url}
+      `)
+      .setThumbnail(
+        i.user.displayAvatarURL({
+          dynamic: true
+        })
+      )
+      .setFooter({
+        text: url
+      });
+
+    const row =
+      new ActionRowBuilder()
+        .addComponents(
+
+          new ButtonBuilder()
+            .setCustomId("sendclip")
+            .setLabel("SEND")
+            .setStyle(ButtonStyle.Success),
+
+          new ButtonBuilder()
+            .setCustomId("cancel_clip")
+            .setLabel("CANCEL")
+            .setStyle(ButtonStyle.Danger)
+
+        );
+
+    const requestChannel =
+      i.guild.channels.cache.get(
+        REQUEST_CHANNEL_ID
+      );
+
+    await requestChannel.send({
+      embeds: [embed],
+      components: [row]
     });
 
   }
