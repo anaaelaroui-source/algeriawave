@@ -557,16 +557,12 @@ ${url}
       BOY_ROLE_ID
     ]);
 
-const embed = new EmbedBuilder()
-  .setColor("#57F287")
-  .setTitle("✔ Verification Process")
-  .setDescription(
-    `👥 **${user.username}** has been successfully verified!`
-  );
+    return i.reply({
+      content: `✅ ${user.tag} Verified As Boy`
+    });
 
-return i.reply({
-  embeds: [embed]
-});
+  }
+
   // ================= VG =================
 
   if (commandName === "vg") {
@@ -587,20 +583,15 @@ return i.reply({
       GIRL_ROLE_ID
     ]);
 
-const embed = new EmbedBuilder()
-  .setColor("#57F287")
-  .setTitle("✔ Verification Process")
-  .setDescription(
-    `👥 **${user.username}** has been successfully verified!`
-  );
+    return i.reply({
+      content: `✅ ${user.tag} Verified As Girl`
+    });
 
-return i.reply({
-  embeds: [embed]
+  }
+
 });
 
 // ================= AFK MENTION =================
-
-});
 
 client.on("messageCreate", async (message) => {
 
@@ -622,4 +613,5 @@ client.on("messageCreate", async (message) => {
 
 // ================= LOGIN =================
 
-client.login(TOKEN);
+console.log("TOKEN:", TOKEN);
+client.login(TOKEN); ,
